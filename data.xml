@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+    <specialities>
+        <speciality>
+            <id>1</id>
+            <name>Biology</name>
+            <description>Basic speciality</description>
+        </speciality>
+        <speciality>
+            <id>2</id>
+            <name>Physics</name>
+            <description>Advanced speciality</description>
+        </speciality>
+        <speciality>
+            <id>3</id>
+            <name>IT</name>
+            <description>Cool speciality</description>
+        </speciality>
+    </specialities>
+    <students>
+        <student>
+            <id>1</id>
+            <name>Vasiliy</name>
+            <speciality>1</speciality>
+            <mark>4.75</mark>
+        </student>
+        <student>
+            <id>2</id>
+            <name>Petr</name>
+            <speciality>2</speciality>
+            <mark>4.5</mark>
+        </student>
+        <student>
+            <id>3</id>
+            <name>Alexander</name>
+            <speciality>3</speciality>
+            <mark>4.99</mark>
+        </student>
+        <student>
+            <id>4</id>
+            <name>Sergey</name>
+            <speciality>1</speciality>
+            <mark>3.9</mark>
+        </student>
+        <student>
+            <id>5</id>
+            <name>Ivan</name>
+            <speciality>2</speciality>
+            <mark>4.15</mark>
+        </student>
+    </students>
+</data>
