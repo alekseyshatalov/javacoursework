@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <!-- DB adapter logger -->
+        <Logger name= "com.javacourse.coursework.adapters.DBAdapter" level="all" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Export adapter logger -->
+        <Logger name= "com.javacourse.coursework.adapters.ExportAdapter" level="all" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Import adapter logger -->
+        <Logger name= "com.javacourse.coursework.adapters.ImportAdapter" level="all" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Command handler logger -->
+        <Logger name= "com.javacourse.coursework.CommandHandler" level="all" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Root Logger -->
+        <Root level="all">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

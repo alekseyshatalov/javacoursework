@@ -7,35 +7,54 @@ import com.javacourse.coursework.models.Speciality;
 import com.javacourse.coursework.models.SpecialtyDAO;
 import com.javacourse.coursework.models.Student;
 import com.javacourse.coursework.models.StudentDAO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class CommandHandler {
+class CommandHandler {
 
-    public static void handle(String command, ArrayList<String> arguments) {
+    private static final Logger logger = LogManager.getLogger(CommandHandler.class);
 
-        if (command.equals("exit"))  {
-            System.exit(0);
-            DBAdapter.closeConnection();
-        } else
-
-        if (command.equals("help")) printHelp(); else
-
-        if (command.equals("export")) export(arguments); else
-
-        if (command.equals("import")) importCommand(arguments); else
-
-        if (command.equals("refresh")) DBAdapter.refresh(); else
-
-        if (command.equals("show")) show(arguments); else
-
-        if (command.equals("create")) create(arguments); else
-
-        if (command.equals("find_by_speciality")) findBySpeciality(arguments); else
-
-        if (command.equals("average_speciality_mark")) averageSpecialityMark(arguments); else
-
-        System.out.println("undefined command");
+    static void handle(String command, ArrayList<String> arguments) {
+        switch (command) {
+            case "exit":
+                try { DBAdapter.closeConnection(); }
+                catch (SQLException e) {logger.error("close error: " + e.getMessage());}
+                System.exit(0);
+            case "help":
+                printHelp();
+                break;
+            case "export":
+                export(arguments);
+                break;
+            case "import":
+                importCommand(arguments);
+                break;
+            case "refresh":
+                try { DBAdapter.refresh(); }
+                catch (SQLException e) { logger.error("refresh error: " + e.getMessage()); }
+                break;
+            case "show":
+                show(arguments);
+                break;
+            case "create":
+                create(arguments);
+                break;
+            case "find_by_speciality":
+                findBySpeciality(arguments);
+                break;
+            case "average_speciality_mark":
+                averageSpecialityMark(arguments);
+                break;
+            default:
+                logger.error("undefined command");
+                break;
+        }
     }
 
     private static void printHelp() {
@@ -51,56 +70,98 @@ public class CommandHandler {
     }
 
     private static void findBySpeciality(ArrayList<String> arguments) {
-        for (Student student : StudentDAO.findBySpeciality(arguments.get(0))) System.out.println(student.toString(true));
+        try { for (Student student : StudentDAO.findBySpeciality(arguments.get(0))) System.out.println(student.toString(true)); }
+        catch (SQLException e) { logger.error("can't find by speciality: " + e.getMessage()); }
     }
 
     private static void averageSpecialityMark(ArrayList<String> arguments) {
-        System.out.println(StudentDAO.averageSpecialityMark(arguments.get(0)));
+        try { System.out.println(StudentDAO.averageSpecialityMark(arguments.get(0))); }
+        catch (SQLException e) { logger.error(e.getMessage()); }
     }
 
     private static void create(ArrayList<String> arguments) {
         if (arguments.get(0).equals("students") && arguments.size() == 4) {
-            String name = arguments.get(1);
-            Speciality speciality = SpecialtyDAO.get(Integer.parseInt(arguments.get(2)));
-            float mark = Float.parseFloat(arguments.get(3));
-            Main.localStudents.add(StudentDAO.create(name, speciality, mark));
+            try {
+                Speciality speciality = SpecialtyDAO.get(Integer.parseInt(arguments.get(2)));
+                String name = arguments.get(1);
+                float mark = Float.parseFloat(arguments.get(3));
+                StudentDAO.create(name, speciality, mark);
+            }
+            catch (SQLException e) { logger.error(e.getMessage()); }
         } else if (arguments.get(0).equals("specialities") && arguments.size() == 3) {
-            String name = arguments.get(1);
-            String description = arguments.get(2);
-            Main.localSpecialities.add(SpecialtyDAO.create(name, description));
-        } else System.out.println("wrong command format");
+            try {
+                String name = arguments.get(1);
+                String description = arguments.get(2);
+                SpecialtyDAO.create(name, description);
+            }
+            catch (SQLException e) { logger.error(e.getMessage()); }
+        } else logger.error("wrong command format");
     }
 
     private static void show(ArrayList<String> arguments) {
-        if(arguments.size() > 2) System.out.println("wrong command format");
+        if(arguments.size() > 2) logger.error("wrong command format");
         else {
             if (arguments.size() == 0) {
-                for (Student student : Main.localStudents) System.out.println(student.toString(true));
+                try {
+                    ArrayList<Student> students = StudentDAO.getAll();
+                    for (Student student : students) System.out.println(student.toString(true));
+                } catch (SQLException e) { logger.error(e.getMessage()); }
             }
             if (arguments.size() == 1) {
-                if (arguments.get(0).equals("students")) for (Student student : Main.localStudents) System.out.println(student.toString(false));
-                if (arguments.get(0).equals("specialities")) for (Speciality speciality : Main.localSpecialities) System.out.println(speciality.toString());
+                if (arguments.get(0).equals("students")) {
+                    try {
+                        ArrayList<Student> students = StudentDAO.getAll();
+                        for (Student student : students) System.out.println(student.toString(false));
+                    } catch (SQLException e) { logger.error(e.getMessage()); }
+                }
+                if (arguments.get(0).equals("specialities")) {
+                    try {
+                        ArrayList<Speciality> specialities = SpecialtyDAO.getAll();
+                        for (Speciality speciality : specialities) System.out.println(speciality.toString());
+                    } catch (SQLException e) { logger.error(e.getMessage()); }
+                }
             }
             if (arguments.size() == 2) {
-                if (arguments.get(0).equals("students")) System.out.println(StudentDAO.get(Integer.parseInt(arguments.get(1))).toString(false));
-                if (arguments.get(0).equals("specialities")) System.out.println(SpecialtyDAO.get(Integer.parseInt(arguments.get(1))).toString());
+                if (arguments.get(0).equals("students")) {
+                    try { System.out.println(StudentDAO.get(1).toString(false)); }
+                    catch (SQLException e) { logger.error(e.getMessage()); }
+                }
+                if (arguments.get(0).equals("specialities")) {
+                    try { System.out.println(SpecialtyDAO.get(1).toString()); }
+                    catch (SQLException e) { logger.error(e.getMessage()); }
+                }
             }
         }
     }
 
     private static void importCommand(ArrayList<String> arguments) {
-        ImportAdapter.importData(arguments.get(0), arguments.get(1));
-        Main.localStudents = StudentDAO.getAll();
-        Main.localSpecialities = SpecialtyDAO.getAll();
+        try { ImportAdapter.importData(arguments.get(0), arguments.get(1)); }
+        catch (IOException | SAXException | ParserConfigurationException | SQLException e) {logger.error("import error: " + e.getMessage());}
     }
 
     private static void export(ArrayList<String> arguments) {
         if(arguments.size() < 2 || arguments.size() > 3) System.out.println("wrong command format");
         else {
-            if (arguments.size() == 2) ExportAdapter.export(Main.localStudents, true, arguments.get(0), arguments.get(1));
+            if (arguments.size() == 2) {
+                try {
+                    ArrayList<Student> students = StudentDAO.getAll();
+                    ExportAdapter.export(students, true, arguments.get(0), arguments.get(1));
+                } catch (SQLException | IOException e) { logger.error("export error: " + e.getMessage()); }
+
+            }
             else {
-                if (arguments.get(0).equals("students")) ExportAdapter.export(Main.localStudents, false, arguments.get(1), arguments.get(2));
-                if (arguments.get(0).equals("specialities")) ExportAdapter.export(Main.localSpecialities, arguments.get(1), arguments.get(2));
+                if (arguments.get(0).equals("students")) {
+                    try {
+                        ArrayList<Student> students = StudentDAO.getAll();
+                        ExportAdapter.export(students, false, arguments.get(1), arguments.get(2));
+                    } catch (SQLException | IOException e) { logger.error("export error: " + e.getMessage()); }
+                }
+                if (arguments.get(0).equals("specialities")) {
+                    try {
+                        ArrayList<Speciality> specialities = SpecialtyDAO.getAll();
+                        ExportAdapter.export(specialities, arguments.get(1), arguments.get(2));
+                    } catch (SQLException | IOException e) { logger.error("export error: " + e.getMessage()); }
+                }
             }
         }
     }

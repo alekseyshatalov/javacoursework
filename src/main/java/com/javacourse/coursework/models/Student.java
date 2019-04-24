@@ -2,12 +2,12 @@ package com.javacourse.coursework.models;
 
 public class Student {
 
-    public int id;
-    public String name;
-    public Speciality speciality;
-    public float mark;
+    private int id;
+    private String name;
+    private Speciality speciality;
+    private float mark;
 
-    public Student(int id, String name, Speciality speciality, float mark) {
+    Student(int id, String name, Speciality speciality, float mark) {
         this.id = id;
         this.name = name;
         this.speciality = speciality;
